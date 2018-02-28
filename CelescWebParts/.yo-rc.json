@@ -1,0 +1,8 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "version": "1.4.1",
+    "libraryName": "celesc-web-parts",
+    "libraryId": "493b5c9b-0fd3-4a78-bdb6-b0c9378740cb",
+    "environment": "onprem"
+  }
+}

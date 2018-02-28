@@ -1,0 +1,19 @@
+{
+  "entries": [
+    {
+      "entry": "./lib/webparts/calendarioEventos/CalendarioEventosWebPart.js",
+      "manifest": "./src/webparts/calendarioEventos/CalendarioEventosWebPart.manifest.json",
+      "outputPath": "./dist/calendario-eventos-web-part.js"
+    },
+    {
+      "entry": "./lib/webparts/bannerNoticias/BannerNoticiasWebPart.js",
+      "manifest": "./src/webparts/bannerNoticias/BannerNoticiasWebPart.manifest.json",
+      "outputPath": "./dist/banner-noticias-web-part.js"
+    }
+  ],
+  "externals": {},
+  "localizedResources": {
+    "CalendarioEventosWebPartStrings": "webparts/calendarioEventos/loc/{locale}.js",
+    "BannerNoticiasWebPartStrings": "webparts/bannerNoticias/loc/{locale}.js"
+  }
+}

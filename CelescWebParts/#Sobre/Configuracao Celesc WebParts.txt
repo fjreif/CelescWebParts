@@ -1,0 +1,99 @@
+Passos para configuracao do Projeto Celesc WEbParts utilizando SharePoint Framework.
+
+Premissa: As WebParts devem funcionar no SharePoint 2016 Feature Pack 2
+
+SharePoint 2016 suporta versão 1.1 do SharePoint Framework
+fonte: https://www.youtube.com/watch?v=LGLMxnmHk6U&t=755s
+
+1 - Verificar versao instalada dos componentes:
+
+λ npm list -g --depth 0
+C:\Users\fabricio\AppData\Roaming\npm
++-- @microsoft/generator-sharepoint@1.3.4
++-- create-react-app@1.4.1
++-- gulp@3.9.1
++-- typescript@2.5.2
++-- webpack@3.8.1
+`-- yo@2.0.0
+
+Como verificado @microsoft/generator-sharepoint esta na versao 1.3.4.
+
+a) Neste caso precisamos desisntalar esta versao substituindo por uma mais antiga.
+
+> npm uninstall -g @microsoft/generator-sharepoint
+
+b) Verificar versoes disponiveis do SharePoint generator
+> npm view @microsoft/generator-sharepoint
+
+c) Para SharePoint 2016 Feature Pack 2 precisamos da versao 1.0.2
+> npm install -g @microsoft/generator-sharepoint@1.0.2
+
+********************************************************************************************************************************
+Obs.: Na verdade esta limitação foi superada e pode ser utilizado ultima versao do SharePoint Generator, basta
+escolher a opção de compatibilidade com SharePoint 2016.
+********************************************************************************************************************************
+
+Criar o projeto SharePoint 2016 Feature Pack 2
+> yo @microsoft/sharepoint
+
+
+Instalar jquery
+npm install --save jquery
+npm install --save @types/jquery
+
+Instalar Moment
+npm install --save moment
+
+Instalar sweetalert2
+npm install --save sweetalert2
+
+Instalar fullcalendar
+npm install --save fullcalendar
+npm install --save @types/fullcalendar
+
+Versao do Framework pode ser verificar no arquivo package.json:
+
+{
+  "name": "celesc-web-parts",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "dependencies": {
+    "@microsoft/sp-client-base": "~1.0.0",
+    "@microsoft/sp-core-library": "~1.0.0",
+    "@microsoft/sp-webpart-base": "~1.0.0",
+    "@types/jquery": "^3.3.0",
+    "@types/react": "^16.0.38",
+    "@types/webpack-env": ">=1.12.1 <1.14.0",
+    "jquery": "^3.3.1",
+    "react": "^16.2.0"
+  },
+  "devDependencies": {
+    "@microsoft/sp-build-web": "~1.0.1",
+    "@microsoft/sp-module-interfaces": "~1.0.0",
+    "@microsoft/sp-webpart-workbench": "~1.0.0",
+    "gulp": "~3.9.1",
+    "@types/chai": ">=3.4.34 <3.6.0",
+    "@types/mocha": ">=2.2.33 <2.6.0"
+  },
+  "scripts": {
+    "build": "gulp bundle",
+    "clean": "gulp clean",
+    "test": "gulp test"
+  }
+}
+
+Versao do Framework deve ser 1.0.0:
+	"@microsoft/sp-client-base": "~1.0.0",
+    "@microsoft/sp-core-library": "~1.0.0",
+    "@microsoft/sp-webpart-base": "~1.0.0"
+	
+
+Testar
+> gulp serve
+
+Deploy
+> gulp bundle --ship
+> gulp package-solution --ship
