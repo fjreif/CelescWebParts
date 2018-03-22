@@ -1,26 +1,19 @@
 {
   "$schema": "https://dev.office.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
   "id": "85343112-86b8-4244-be8c-10401bc68739",
-  "alias": "BannerNoticiasWebPart",
+  "alias": "ReactSlideSwiperWebPart",
   "componentType": "WebPart",
-
-  // The "*" signifies that the version should be taken from the package.json
   "version": "*",
   "manifestVersion": 2,
-
-  // If true, the component can only be installed on sites where Custom Script is allowed.
-  // Components that allow authors to embed arbitrary script code should set this to true.
-  // https://support.office.com/en-us/article/Turn-scripting-capabilities-on-or-off-1f2c515f-5d7e-448a-9fd7-835da935584f
   "requiresCustomScript": false,
-
   "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
     "group": { "default": "Other" },
-    "title": { "default": "BannerNoticias" },
-    "description": { "default": "Lista de noticias" },
+    "title": { "default": "Banner Noticias" },
+    "description": { "default": "Banner Noticias" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "BannerNoticias"
+      "description": "Banner Noticias"
     }
   }]
 }
