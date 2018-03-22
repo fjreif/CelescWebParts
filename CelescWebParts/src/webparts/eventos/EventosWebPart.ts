@@ -14,25 +14,33 @@ import {
   PropertyPaneButtonType
 } from '@microsoft/sp-webpart-base';
 
-import * as strings from 'CalendarioEventosWebPartStrings';
-import CalendarioEventos from './components/CalendarioEventos';
-import { ICalendarioEventosProps } from './components/ICalendarioEventosProps';
-import  CalendarTemplate from './components/CalendarTemplate';
+import * as strings from 'EventosWebPartStrings';
+import Eventos from './components/Eventos';
+import { IEventosProps } from './components/IEventosProps';
 
-//JavaScript Third Party components
 import * as jQuery from 'jquery';
-import 'fullcalendar';
 import * as moment from 'moment';
-import * as swal2 from 'sweetalert2';
+import 'clndr';
+
 
 import { SPComponentLoader } from '@microsoft/sp-loader';
 import {
-  SPHttpClient, SPHttpClientResponse
+  SPHttpClient, ISPHttpClientOptions, SPHttpClientResponse
 } from '@microsoft/sp-http';
-import {
-  Environment,
-  EnvironmentType
-} from '@microsoft/sp-core-library';
+
+export interface IEventosWebPartProps {
+  description: string;
+  site: string;
+  siteOther: string;
+  other: boolean;
+  listTitle: string;
+  libraryUrl: string;
+  start: string;
+  end: string;
+  title: string;
+  detail: string;
+  type: string;
+}
 
 export interface ISPLists {
   value: ISPList[];
@@ -43,56 +51,17 @@ export interface ISPList {
   Id: string;
 }
 
-export interface ICalendarioEventosWebPartProps {
-  description: string;
-  site: string;
-  siteOther: string;
-  other: boolean;
-  listTitle: string;
-  theme: string;
-  libraryUrl: string;
-  start: string;
-  end: string;
-  title: string;
-  detail: string;
-  size: string;
-}
-
-require('../../../node_modules/fullcalendar/dist/fullcalendar.min.css');
-require('../../../node_modules/fullcalendar/dist/locale/pt-br.js');
-require('./css/fc.minsize.css');
-require('./css/themes/excite-bike/jquery-ui.css');
-
-export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICalendarioEventosWebPartProps> {
+export default class EventosWebPart extends BaseClientSideWebPart<IEventosWebPartProps> {
 
   public render(): void {
-
-    var element: React.ReactElement<ICalendarioEventosProps> = React.createElement(
-      CalendarioEventos,
-      {
-        description: this.properties.description
-      }
-    );
-
-    //SPComponentLoader.loadCss('./css/fullcalendar.min.css');
-
-    if (this.properties.theme != null) {
-      let themeUrlFile = this.properties.libraryUrl + '/themes/';
-      //SPComponentLoader.loadCss(this.properties.theme);
-    }
-
-    if (!this.properties.other) {
-      jQuery('input[aria-label=hide-col]').parent().hide();
-    }
-
-    //Check required properties before rendering list
-    if (this.properties.listTitle == null || this.properties.start == null || this.properties.end == null || this.properties.title == null || this.properties.detail == null) {
-      element = new CalendarioEventos().renderEmpty();
+    moment.locale('pt-br'); moment.locale();
+    if (this.properties.listTitle == null || this.properties.start == null || 
+        this.properties.end == null || this.properties.title == null || 
+        this.properties.detail == null || this.properties.type == null) {
+      ReactDom.render(new Eventos().renderEmpty(), this.domElement);
     } else {
       this._renderListAsync();
     }
-
-    ReactDom.render(element, this.domElement);
   }
 
   protected get dataVersion(): Version {
@@ -101,15 +70,11 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
 
 
   protected onPropertyPaneConfigurationStart(): void {
-    //Set a default theme    
-
-    if (this.properties.theme == null) {
-      this.properties.theme = CalendarTemplate.theme()[0].key.toString();
-    }
     if (this.properties.site) {
       this.listDisabled = false;
     }
-    if (this.properties.listTitle && (!this.properties.start || !this.properties.end || !this.properties.title || !this.properties.detail)) {
+    if (this.properties.listTitle && (!this.properties.start || !this.properties.end || 
+        !this.properties.title || !this.properties.detail)) {
       //this._getColumnsAsync();
     }
 
@@ -197,7 +162,14 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
       }
     } else if (propertyPath === 'listTitle' && newValue) {
       var siteUrl = newValue;
-      if (this.properties.other) { siteUrl = this.properties.siteOther; }
+      if (this.properties.other) { 
+        siteUrl = this.properties.siteOther; 
+      } else {
+        if (this.properties.site) {
+          siteUrl = this.properties.site;
+        }
+      }
+
       this._getListColumns(newValue, siteUrl)
         .then((response) => {
           var col: IPropertyPaneDropdownOption[] = [];
@@ -211,11 +183,19 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
           this.render();
         });
 
-    } else if (propertyPath === 'size' && newValue) {
-        this.ChangeSize(newValue);
+    } else if (propertyPath === 'libraryUrl' && newValue) {
+      this.loadLibrary(newValue);
     } else {
       //Handle other fields here
       this.render();
+    }
+  }
+
+  private loadLibrary(url: string): void {
+    if (url) {
+      let rootUrl = url.concat("/js/calendarTemplate");
+      SPComponentLoader.loadCss(rootUrl.concat('/clndr.css'));
+      SPComponentLoader.loadScript(rootUrl.concat('/underscore/underscore-min.js'));
     }
   }
 
@@ -237,10 +217,6 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
               groupFields: [
                 PropertyPaneTextField('libraryUrl', {
                   label: 'Local obter bibliotecas JS'
-                }),
-                PropertyPaneDropdown('theme', {
-                  label: 'Theme',
-                  options: CalendarTemplate.theme()
                 }),
                 PropertyPaneDropdown('site', {
                   label: 'Site',
@@ -275,14 +251,15 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
                   options: this._columnOptions,
                   disabled: this.colsDisabled
                 }),
-                PropertyPaneDropdown('size', {
-                  label: 'Tamanho',
-                  options: this._sizeOptions
+                PropertyPaneDropdown('type', {
+                  label: 'Tipo de Evento',
+                  options: this._columnOptions,
+                  disabled: this.colsDisabled
                 }),
                 PropertyPaneButton('buttonUpdate', {
                   text: 'Atualizar',
                   buttonType: PropertyPaneButtonType.Normal,
-                  onClick: this.ButtonUpdateClick.bind(this)
+                  onClick: this.buttonUpdateClick.bind(this)
                 })
               ]
             }
@@ -292,31 +269,13 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
     };
   }
 
-  private ButtonUpdateClick(oldVal: any): any {     
-     return this.render();
-  }
-
-  private TestCalendar(): void {
-    let options = {
-
-    };
-    
+  private buttonUpdateClick(oldVal: any): any {
+    this.render();
   }
 
   private _siteOptions: IPropertyPaneDropdownOption[] = [];
   private _dropdownOptions: IPropertyPaneDropdownOption[] = [];
   private _columnOptions: IPropertyPaneDropdownOption[] = [];
-
-  private _sizeOptions: IPropertyPaneDropdownOption[] = [
-    {key: 'small', text: 'Pequeno'},
-    {key: 'medium', text: 'Médio'},
-    {key: 'big', text: 'Grande'},
-    {key: 'fullSize', text: 'Full-Size'}
-  ];
-  
-  private ChangeSize(size: string): void {
-    
-  }
 
   public onInit<T>(): Promise<T> {
     //this._siteOptions.push({key:this.context.pageContext.web.absoluteUrl, text:'This Site'});
@@ -352,7 +311,9 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
   }
 
   private _getListData(listName: string, site: string): Promise<any> {
-    return this.context.spHttpClient.get(site + `/_api/web/lists/GetByTitle('${listName}')/items?$select=${encodeURIComponent(this.properties.title)},${encodeURIComponent(this.properties.start)},${encodeURIComponent(this.properties.end)},${encodeURIComponent(this.properties.detail)},Created,Author/ID,Author/Title&$expand=Author/ID,Author/Title&$orderby=Id desc&$limit=500`, SPHttpClient.configurations.v1)
+    return this.context.spHttpClient.get(site + `/_api/web/lists/GetByTitle('${listName}')/items?$select=${encodeURIComponent(this.properties.title)},${encodeURIComponent(this.properties.start)},
+                                        ${encodeURIComponent(this.properties.end)},${encodeURIComponent(this.properties.detail)},${encodeURIComponent(this.properties.type)},
+                                        Created,Author/ID,Author/Title&$expand=Author/ID,Author/Title&$orderby=Id desc&$limit=500`, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
         return response.json();
       });
@@ -362,26 +323,148 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
     var calItems: any[] = items.map((list: any) => {
       return {
         title: list[this.properties.title],
-        start: list[this.properties.start],
-        end: list[this.properties.end],
+        date: moment(list[this.properties.start]),
+        startDate: moment(list[this.properties.start]),
+        endDate: moment(list[this.properties.end]),
         id: list['Id'],
-        detail: list[this.properties.detail]
+        detail: list[this.properties.detail],
+        type: list[this.properties.type]
       };
     });
+
+
     this.context.statusRenderer.clearLoadingIndicator(this.domElement);
-    const calendarOptions: any = {
-      header: {
-        
-      },
-      theme: true,
-      events: calItems,
-      eventClick: function (_event) {
-        var eventDetail = moment(_event['start']).format('DD/MM/YYYY HH:mm') + ' - ' + moment(_event['end']).format('DD/MM/YYYY HH:mm') + '<br>' + _event['detail'];
-        swal2.default(_event.title, eventDetail, 'info');
-      }
-    };
-    jQuery('.spfxcalendar', this.domElement).fullCalendar(calendarOptions);
+    this.renderCalendar(calItems);
   }
+
+  private renderCalendar(items: any[]): void {
+    let templateURL = this.properties.libraryUrl.concat('/js/calendarTemplate/template.html');
+    this.getFileContent(templateURL).then((template) => {
+      if (template) {
+        this.domElement.innerHTML = template;
+        jQuery('#mini-clndr', this.domElement).clndr({
+          events: items,
+          template: jQuery('#template-calendar').html(),
+          daysOfTheWeek: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+          /*
+          clickEvents: {
+            click: function (target) {
+              if (target.events.length) {
+                var daysContainer = jQuery('#mini-clndr').find('.days-container');
+                daysContainer.toggleClass('show-events', true);
+                jQuery('#mini-clndr').find('.x-button').click(function () {
+                  daysContainer.toggleClass('show-events', false);
+                });
+              }
+            }
+          },
+          */
+          adjacentDaysChangeMonth: true,
+          forceSixRows: true
+        });
+      }
+    });
+
+  }
+
+  private renderStaticCalendar(): void {
+
+    var template = `
+    <div class="inner">
+      <div id="mini-clndr"></div>
+    </div>
+    <script type="text/template" id="template-calendar">		
+            <div class="controls">
+              <div class="clndr-previous-button">‹</div>
+			        <div class="month"><%= month %></div>
+			        <div class="clndr-next-button">›</div>
+            </div>
+            <div class="days-container">
+              <div class="days">
+                <div class="headers">
+                  <% _.each(daysOfTheWeek, function(day) { %>
+                    <div class="day-header"><%= day %></div>
+                  <% }); %>
+                </div>                
+                <% _.each(days, function(day) { %>
+                    <div class="<%= day.classes %>"><%= day.day %></div>
+                <% }); %>                
+              </div>
+              <div class="events">
+                <div class="headers">
+                  <div class="x-button">x</div>
+                  <div class="event-header">EVENTOS</div>
+                </div>
+                <div class="events-list">
+                  <% _.each(eventsThisMonth, function(event) { %>
+                    <%	console.log(event); %>
+                    <div class="event">
+                    <div class="event-item-name"><%= event.title %></div>
+                    <div class="event-item-location"><%= event.startDate || event.date %></div>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+            </div>        
+    </script>
+    `;
+
+    this.domElement.innerHTML = template;
+
+    // Here's some magic to make sure the dates are happening this month.
+    var thisMonth = moment().format('YYYY-MM');
+    // Events to load into calendar
+    var eventArray = [
+      {
+        title: 'Multi-Day Event',
+        endDate: thisMonth + '-14',
+        startDate: thisMonth + '-10'
+      }, {
+        endDate: thisMonth + '-23',
+        startDate: thisMonth + '-21',
+        title: 'Another Multi-Day Event'
+      }, {
+        date: thisMonth + '-27',
+        title: 'Single Day Event'
+      }
+    ];
+
+    jQuery('#mini-clndr', this.domElement).clndr({
+      events: eventArray,
+      template: jQuery('#template-calendar').html(),
+      daysOfTheWeek: ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'],
+      clickEvents: {
+        click: function (target) {
+          if (target.events.length) {
+            var daysContainer = jQuery('#mini-clndr').find('.days-container');
+            daysContainer.toggleClass('show-events', true);
+            jQuery('#mini-clndr').find('.x-button').click(function () {
+              daysContainer.toggleClass('show-events', false);
+            });
+          }
+        }
+      },
+      adjacentDaysChangeMonth: true,
+      forceSixRows: true
+    });
+  }
+
+  public getFileContent(fileUrl: string): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
+      this.context.spHttpClient.get(fileUrl, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
+        if (response.ok) {
+          resolve(response.text());
+        }
+        else {
+          reject(response.statusText);
+        }
+      })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  }
+
 
   private _getSitesAsync(): void {
     this._getSiteRootWeb()
@@ -437,5 +520,6 @@ export default class CalendarioEventosWebPart extends BaseClientSideWebPart<ICal
       this.context.statusRenderer.renderError(this.domElement, "There was an error loading your list, please verify the selected list has Calendar Events or choose a new list.");
     });
   }
+
 
 }
