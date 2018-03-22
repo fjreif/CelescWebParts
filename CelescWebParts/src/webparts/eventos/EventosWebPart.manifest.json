@@ -1,7 +1,7 @@
 {
   "$schema": "https://dev.office.com/json-schemas/spfx/client-side-web-part-manifest.schema.json",
-  "id": "44302528-afe5-42ac-972d-a149a964f7f9",
-  "alias": "CalendarioEventosWebPart",
+  "id": "449be411-fe06-4481-8025-746bdad5e169",
+  "alias": "EventosWebPart",
   "componentType": "WebPart",
 
   // The "*" signifies that the version should be taken from the package.json
@@ -14,14 +14,13 @@
   "requiresCustomScript": false,
 
   "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
-    "group": { "default": "Celesc Web Parts" },
-    "title": { "default": "CalendarioEventos" },
-    "description": { "default": "Exibir lista de eventos" },
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
+    "group": { "default": "Other" },
+    "title": { "default": "Eventos" },
+    "description": { "default": "Lista de eventos" },
     "officeFabricIconFontName": "Page",
     "properties": {
-      "description": "CalendarioEventos",
-      "libraryUrl": "https://code.jquery.com/ui/1.12.1"
+      "description": "Eventos"
     }
   }]
 }

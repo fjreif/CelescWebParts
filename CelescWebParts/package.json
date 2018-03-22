@@ -11,18 +11,22 @@
     "test": "gulp test"
   },
   "dependencies": {
-    "react": "15.4.2",
-    "react-dom": "15.4.2",
-    "@types/react": "0.14.46",
-    "@types/react-dom": "0.14.18",
-    "@types/react-addons-shallow-compare": "0.14.17",
-    "@types/react-addons-update": "0.14.14",
-    "@types/react-addons-test-utils": "0.14.15",
     "@microsoft/sp-core-library": "~1.1.0",
-    "@microsoft/sp-webpart-base": "~1.1.0",
     "@microsoft/sp-lodash-subset": "~1.1.0",
     "@microsoft/sp-office-ui-fabric-core": "~1.4.0-0",
-    "@types/webpack-env": ">=1.12.1 <1.14.0"
+    "@microsoft/sp-webpart-base": "~1.1.0",
+    "@types/react": "0.14.46",
+    "@types/react-addons-shallow-compare": "0.14.17",
+    "@types/react-addons-test-utils": "0.14.15",
+    "@types/react-addons-update": "0.14.14",
+    "@types/react-dom": "0.14.18",
+    "@types/webpack-env": ">=1.12.1 <1.14.0",
+    "fullcalendar": "^3.8.2",
+    "jquery": "^3.3.1",
+    "moment": "^2.20.1",
+    "react": "15.4.2",
+    "react-dom": "15.4.2",
+    "sweetalert2": "^7.12.17"
   },
   "devDependencies": {
     "@microsoft/sp-build-web": "~1.1.0",

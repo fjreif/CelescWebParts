@@ -8,9 +8,9 @@
   "requiresCustomScript": false,
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
-    "group": { "default": "Other" },
+    "group": { "default": "Celesc Web Parts" },
     "title": { "default": "Banner Noticias" },
-    "description": { "default": "Banner Noticias" },
+    "description": { "default": "Lista de noticias" },
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "Banner Noticias"

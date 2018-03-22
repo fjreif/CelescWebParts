@@ -39,7 +39,6 @@ Criar o projeto SharePoint 2016 Feature Pack 2
 
 Instalar jquery
 npm install --save jquery
-npm install --save @types/jquery
 
 Instalar Moment
 npm install --save moment
@@ -49,7 +48,6 @@ npm install --save sweetalert2
 
 Instalar fullcalendar
 npm install --save fullcalendar
-npm install --save @types/fullcalendar
 
 Versao do Framework pode ser verificar no arquivo package.json:
 
