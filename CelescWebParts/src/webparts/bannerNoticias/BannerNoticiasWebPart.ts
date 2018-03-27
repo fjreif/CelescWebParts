@@ -4,10 +4,13 @@ import { Version } from '@microsoft/sp-core-library';
 import {
   PropertyPaneCheckbox,
   PropertyPaneDropdown,
+  IPropertyPaneDropdownOption,
   BaseClientSideWebPart,
   IPropertyPaneConfiguration,
   PropertyPaneTextField,
   PropertyPaneToggle,
+  PropertyPaneButton,
+  PropertyPaneButtonType  
 } from '@microsoft/sp-webpart-base';
 
 import {
@@ -19,6 +22,9 @@ import ReactSlideSwiper from './components/BannerNoticias';
 import { IReactSlideSwiperProps } from './components/IBannerNoticiasProps';
 import { IListServce } from './services/IListService';
 import { ListMock } from './services/ListMock';
+import { ListNews } from './services/ListNews';
+
+import { SPComponentLoader } from '@microsoft/sp-loader';
 
 export interface IBannerNoticiasProps {
   enableNavigation: boolean;
@@ -31,10 +37,13 @@ export interface IBannerNoticiasProps {
   spaceBetweenSlides: string;
   enableGrabCursor: boolean;
   enableLoop: boolean;
-  enableTitle:string;
-  enableLista:string
+  enableLista:string;
+  enableSite:string;
+  other: boolean;
+  listTitle: string;
+  siteOther: string;
+  libraryUrl: string;
 }
-
 export interface ISPLists {
   value: ISPList[];
 }
@@ -47,10 +56,14 @@ export interface ISPList {
 export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBannerNoticiasProps> {
 
   public render(): void {
+    console.log('Versão: ' + this.dataVersion);
+    if(this.properties.libraryUrl){
+      SPComponentLoader.loadCss(this.properties.libraryUrl.concat("/js/bannerTemplate/banner.css"));
+    }
     const element: React.ReactElement<IReactSlideSwiperProps> = React.createElement(
       ReactSlideSwiper,
       {
-        listService: new ListMock(),
+        listService: new ListNews(this.context.spHttpClient),
         swiperOptions: this.properties
       }
     );
@@ -59,10 +72,114 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse('1.0.0.0');
+  }
+
+  protected onPropertyPaneConfigurationStart(): void {
+    if (this.properties.enableSite) {
+      this.context.statusRenderer.displayLoadingIndicator(this.domElement, 'Configuration');
+      this._getSiteRootWeb()
+        .then((response0) => {
+          this._getSites(response0['Url'])
+            .then((response) => {
+              var sites: IPropertyPaneDropdownOption[] = [];
+              sites.push({ key: this.context.pageContext.web.absoluteUrl, text: 'This Site' });
+              for (var _key in response.value){
+                if (this.context.pageContext.web.absoluteUrl != response.value[_key]['Url']) {
+                  sites.push({ key: response.value[_key]['Url'], text: response.value[_key]['Title'] });
+                }
+              }
+              
+              this._siteOptions = sites;
+              if (this.properties.enableSite) {
+                this._getListTitles(this.properties.enableSite)
+                  .then((response2) => {
+                    this. _listaOptions = response2.value.map((list: ISPList) => {
+                      return {
+                        key: list.Title,
+                        text: list.Title
+                      };
+                    });
+                    this._getListColumns(this.properties.listTitle, this.properties.enableSite)
+                      .then((response3) => {
+                        var col: IPropertyPaneDropdownOption[] = [];
+                        for (var _key in response3.value) {
+                          col.push({ key: response3.value[_key]['InternalName'], text: response3.value[_key]['Title'] });
+                        }
+                        this._columnOptions = col;
+                        this.context.propertyPane.refresh();
+                        this.context.statusRenderer.clearLoadingIndicator(this.domElement);
+                        this.render();
+                      })
+                  });
+              }
+            })
+          })
+    }//if
+    else{
+      this._getSitesAsync();
+    }
+  }
+  protected onPropertyPaneFieldChanged(propertyPath: string, oldValue: any, newValue: any): void {
+    
+    this.context.statusRenderer.displayLoadingIndicator(this.domElement, 'Configuration');
+    if (propertyPath === 'enableSite' && newValue) {
+      
+      var siteUrl = newValue;
+      if (this.properties.enableSite && this.properties.enableSite.length > 25) {
+        this._getListTitles(siteUrl)
+          .then((response) => {
+            this._listaOptions = response.value.map((list: ISPList) => {
+              return {
+                key: list.Title,
+                text: list.Title
+              };
+            });
+            
+            this.context.propertyPane.refresh();
+            this.context.statusRenderer.clearLoadingIndicator(this.domElement);
+            this.render();
+          });
+      }
+    } else if (propertyPath === 'listTitle' && newValue) {
+      var siteUrl = newValue;
+      if (this.properties.other) { 
+        siteUrl = this.properties.siteOther; 
+      } else {
+        if (this.properties.enableSite) {
+          siteUrl = this.properties.enableSite;
+        }
+      }
+
+      this._getListColumns(newValue, siteUrl)
+        .then((response) => {
+          var col: IPropertyPaneDropdownOption[] = [];
+          for (var _key in response.value) {
+            col.push({ key: response.value[_key]['InternalName'], text: response.value[_key]['Title'] });
+          }
+          this._columnOptions = col;
+          this.context.propertyPane.refresh();
+          this.context.statusRenderer.clearLoadingIndicator(this.domElement);
+          this.render();
+        });
+
+    }else if (propertyPath === 'libraryUrl' && newValue) {
+      this.loadLibrary(newValue);
+    } else{
+      //Handle other fields here
+      this.render();
+    }
+  }
+  private loadLibrary(url: string): void {
+    if (url) {
+      let rootUrl = url.concat("/js/bannerTemplate");
+      SPComponentLoader.loadCss(rootUrl.concat('/banner.css'));
+    }
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
+
+    
     return {
       pages: [
         {
@@ -85,7 +202,8 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
                   label: strings.SlidesPerWiew,
                   value: '3'
                 })
-              ]
+              ],
+              isCollapsed: true
             },
             {
               groupName: "Reprodução Automática",
@@ -130,37 +248,39 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
             {
               groupName: "Noticias",
               groupFields: [
+                PropertyPaneDropdown('enableSite', {
+                  label: 'Site',
+                  options: this._siteOptions
+                }),
                 PropertyPaneDropdown('enableLista', {
-                  label: 'Lista',options: [
-                    { key: '1', text: 'A convergent value empowers the standard-setters'},
-                    { key: '2', text: 'The Digital Marketers empower a digitized correlation' },
-                    { key: '3', text: 'The market thinker strategically standardizes a competitive success' },
-                    { key: '4', text: 'We are going to secure our cross-pollinations'}
-                  ],
-                  selectedKey: '1',
+                  label: 'Lista',
+                  options: this._listaOptions
                 }),
-                PropertyPaneDropdown('enableTitle', {
-                  label: 'Titulo',options: [
-                    { key: '1', text: 'A convergent value empowers the standard-setters'},
-                    { key: '2', text: 'The Digital Marketers empower a digitized correlation' },
-                    { key: '3', text: 'The market thinker strategically standardizes a competitive success' },
-                    { key: '4', text: 'We are going to secure our cross-pollinations'}
-                  ],
-                  selectedKey: '1',
-                }),
-                PropertyPaneTextField('UrlImagem', {
-                  label: "URL da Imagem",
-                  value: "https://blog.velingeorgiev.com/static/images/POWERSHELL.png",
-                  disabled: true
-                }),
+                PropertyPaneTextField('libraryUrl', {
+                  label: 'Local obter bibliotecas JS'
+                })/*,
+                PropertyPaneButton('atualizar', {
+                  text: 'Atualizar',
+                  buttonType: PropertyPaneButtonType.Normal,
+                  onClick: this.buttonUpdateClick.bind(this)
+                })*/
               ],
               isCollapsed: true
             },
-          ]
-        }
-      ]
+            
+          ],
+        },
+      ],     
+
     };
   }
+  private buttonUpdateClick(oldVal: any): any {
+    this.render();
+  }
+
+  private _siteOptions: IPropertyPaneDropdownOption[] = [];
+  private _listaOptions: IPropertyPaneDropdownOption[] = [];
+  private _columnOptions: IPropertyPaneDropdownOption[] = [];
   
   private _getSiteRootWeb(): Promise<ISPLists> {
     return this.context.spHttpClient.get(this.context.pageContext.web.absoluteUrl + `/_api/Site/RootWeb?$select=Title,Url`, SPHttpClient.configurations.v1)
@@ -187,6 +307,45 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
     return this.context.spHttpClient.get(listsite + `/_api/web/lists/GetByTitle('${listNameColumns}')/Fields?$filter=Hidden eq false and ReadOnlyField eq false`, SPHttpClient.configurations.v1)
       .then((response: SPHttpClientResponse) => {
         return response.json();
+      });
+  }
+  private _getSitesAsync(): void {
+    this._getSiteRootWeb()
+      .then((response) => {
+        this._getSites(response['Url'])
+          .then((response1) => {
+            var sites: IPropertyPaneDropdownOption[] = [];
+            sites.push({ key: this.context.pageContext.web.absoluteUrl, text: 'This Site' });
+            for (var _key in response1.value) {
+              sites.push({ key: response1.value[_key]['Url'], text: response1.value[_key]['Title'] });
+            }
+            this._siteOptions = sites;
+            this.context.propertyPane.refresh();
+            var siteUrl = this.properties.enableSite;
+            if (this.properties.other) { siteUrl = this.properties.siteOther; }
+            this._getListTitles(siteUrl)
+              .then((response2) => {
+                this._listaOptions = response2.value.map((list: ISPList) => {
+                  return {
+                    key: list.Title,
+                    text: list.Title
+                  };
+                });
+                this.context.propertyPane.refresh();
+                if (this.properties.listTitle) {
+                  this._getListColumns(this.properties.listTitle, this.properties.enableSite)
+                    .then((response3) => {
+                      var col: IPropertyPaneDropdownOption[] = [];
+                      for (var _key in response3.value) {
+                        col.push({ key: response3.value[_key]['InternalName'], text: response3.value[_key]['Title'] });
+                      }
+                      this.context.propertyPane.refresh();
+                      this.context.statusRenderer.clearLoadingIndicator(this.domElement);
+                      this.render();
+                    })
+                }
+              });
+          })
       });
   }
 }

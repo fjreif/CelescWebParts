@@ -1,0 +1,51 @@
+//@import '~@microsoft/sp-office-ui-fabric-core/dist/sass/SPFabricCore.scss';
+
+.card {
+
+  .wrapper{
+    border: none;
+    max-width: 300px;
+    //height: 420px;
+    //max-height: 420px;
+    background: #fff
+  }
+
+  .url {
+    text-decoration: none;
+  }
+
+  .image {
+    height: 110px;
+    //width: 166px;
+    margin: 5px 5px 10px 5px;
+    cursor: default;
+  }
+
+  .title {
+    height: 100px;
+    //min-width: 180px;
+    //max-width: 180px;
+    margin: 0px 20px 10px 20px;
+    font-size: 16px;
+    overflow-y: auto;
+    cursor: default;
+    background: #f1f1f1;
+    padding:11px 7px 0 7px
+  }
+
+  .description {
+    height: 110px;
+    font-size: 15px;
+    overflow-y: auto;
+    margin-left: 20px;
+    margin-right: 20px;
+  }
+
+  .BtnVer{
+    cursor: pointer;
+    padding: 5px 12px;
+    border-radius: 5px;
+    border: none;
+    margin-bottom: 15px
+  }
+}
