@@ -5,6 +5,6 @@ declare interface IEventosWebPartStrings {
 }
 
 declare module 'EventosWebPartStrings' {
-  const strings: IEventosWebPartStrings;
-  export = strings;
+  const stringsEventos: IEventosWebPartStrings;
+  export = stringsEventos;
 }

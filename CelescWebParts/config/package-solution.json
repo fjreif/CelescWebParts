@@ -1,9 +1,9 @@
 {
   "$schema": "https://dev.office.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "celesc-web-parts-client-side-solution",
+    "name": "celesc-web-parts",
     "id": "493b5c9b-0fd3-4a78-bdb6-b0c9378740cb",
-    "version": "1.0.0.0"
+    "version": "1.0.0.8"
   },
   "paths": {
     "zippedPackage": "solution/celesc-web-parts.sppkg"
