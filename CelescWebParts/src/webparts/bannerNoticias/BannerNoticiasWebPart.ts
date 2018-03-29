@@ -261,7 +261,7 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
                 PropertyPaneButton('atualizar', {
                   text: 'Atualizar',
                   buttonType: PropertyPaneButtonType.Normal,
-                  onClick: this.refreshPage.bind(this)
+                  onClick: this.updateClick.bind(this)
                 })
               ]
             },
@@ -272,7 +272,7 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
 
     };
   }
-  protected refreshPage(): void {
+  protected updateClick(oldVal: any):any  {
     this.render();
 }
 
