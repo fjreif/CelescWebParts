@@ -1,4 +1,4 @@
 {
   "$schema": "https://dev.office.com/json-schemas/spfx-build/write-manifests.schema.json",  
-  "cdnBasePath": "http://celshpnth/devMicroservice/siteassets/framework"
+  "cdnBasePath": "http://celshpnth/devMicroservice/SiteAssets/framework/CelescWebParts"
 }
