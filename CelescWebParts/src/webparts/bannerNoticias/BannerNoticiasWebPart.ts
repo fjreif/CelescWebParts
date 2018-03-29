@@ -63,7 +63,7 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
     const element: React.ReactElement<IReactSlideSwiperProps> = React.createElement(
       ReactSlideSwiper,
       {
-        listService: new ListNews(this.context.spHttpClient),
+        listService: new ListNews(this.context.spHttpClient, this.properties.enableSite),
         swiperOptions: this.properties
       }
     );
@@ -178,8 +178,6 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
   }
 
   protected getPropertyPaneConfiguration(): IPropertyPaneConfiguration {
-
-    
     return {
       pages: [
         {
@@ -192,15 +190,16 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
               groupName: "Geral",
               groupFields: [
                 PropertyPaneToggle('enableNavigation', {
-                  label: strings.EnableNavigation
+                  label: 'Ativar navegação'
                 }),
                 PropertyPaneToggle('enablePagination', {
-                  label: strings.EnablePagination,
+                  label: 'Ativar paginação',
                   checked: true
                 }),
                 PropertyPaneTextField('slidesPerView', {
-                  label: strings.SlidesPerWiew,
-                  value: '3'
+                  label: 'Slides por visualização',
+                  value: '3',
+                  disabled: true
                 })
               ],
               isCollapsed: true
@@ -209,16 +208,16 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
               groupName: "Reprodução Automática",
               groupFields: [
                 PropertyPaneToggle('enableAutoplay', {
-                  label: strings.EnableAutoplay
+                  label: 'Ativar'
                 }),
                 PropertyPaneTextField('delayAutoplay', {
-                  label: strings.DelayAutoplay,
-                  description: strings.Miliseconds,
+                  label: 'Duração',
+                  description: 'Miliseconds',
                   value: '2500',
                   disabled: !this.properties.enableAutoplay
                 }),
                 PropertyPaneToggle('disableAutoplayOnInteraction', {
-                  label: strings.DisableAutoplayOnInteraction,
+                  label: 'Desativar durante a interação',
                   disabled: !this.properties.enableAutoplay
                 })
               ],
@@ -228,19 +227,19 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
               groupName: "Avançado",
               groupFields: [
                 PropertyPaneTextField('slidesPerGroup', {
-                  label: strings.SlidesPerGroup,
+                  label: 'Slides por grupo',
                   value: '3'
                 }),
                 PropertyPaneTextField('spaceBetweenSlides', {
-                  label: strings.SpaceBetweenSlides,
+                  label: 'Espaço entre os slides',
                   description: strings.InPixels,
                   value: '5'
                 }),
                 PropertyPaneToggle('enableGrabCursor', {
-                  label: strings.EnableGrabCursor
+                  label: 'Ativar cursor de captura'
                 }),
                 PropertyPaneToggle('enableLoop', {
-                  label: strings.EnableLoop
+                  label: 'Ativar loop'
                 })
               ],
               isCollapsed: true
@@ -258,14 +257,13 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
                 }),
                 PropertyPaneTextField('libraryUrl', {
                   label: 'Local obter bibliotecas JS'
-                })/*,
+                }),
                 PropertyPaneButton('atualizar', {
                   text: 'Atualizar',
                   buttonType: PropertyPaneButtonType.Normal,
-                  onClick: this.buttonUpdateClick.bind(this)
-                })*/
-              ],
-              isCollapsed: true
+                  onClick: this.refreshPage.bind(this)
+                })
+              ]
             },
             
           ],
@@ -274,9 +272,9 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
 
     };
   }
-  private buttonUpdateClick(oldVal: any): any {
-    this.render();
-  }
+  protected refreshPage(): void {
+    window.location.reload();
+}
 
   private _siteOptions: IPropertyPaneDropdownOption[] = [];
   private _listaOptions: IPropertyPaneDropdownOption[] = [];

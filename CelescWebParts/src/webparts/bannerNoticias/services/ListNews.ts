@@ -7,14 +7,15 @@ import {
 export class ListNews implements IListServce {
 
     private httpCliente: SPHttpClient;
-
-    constructor(_httpCliente: SPHttpClient) {
+    private siteUrl: string;
+    constructor(_httpCliente: SPHttpClient, _siteUrl:string) {
         this.httpCliente = _httpCliente;
+        this.siteUrl = _siteUrl;
     }
     
     public getAll(): Promise<ListItem[]> {
         return new Promise<Array<ListItem>>((resolve:any) => {           
-            return this.httpCliente.get(`https://microservicebnu.sharepoint.com/dev/lab/_api/web/lists/GetByTitle('BannerNoticias')/items?$select=Title, urlImagem, linkNoticias, Ativo&$filter=Ativo eq 1`, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
+            return this.httpCliente.get(this.siteUrl +`/_api/web/lists/GetByTitle('BannerNoticias')/items?$select=Title, urlImagem, linkNoticias, Ativo&$filter=Ativo eq 1`, SPHttpClient.configurations.v1).then((response: SPHttpClientResponse) => {
                 return response.json();
             }).then((data) => {
                 if (data) {
