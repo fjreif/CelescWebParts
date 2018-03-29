@@ -3,7 +3,7 @@
   "solution": {
     "name": "celesc-web-parts",
     "id": "493b5c9b-0fd3-4a78-bdb6-b0c9378740cb",
-    "version": "1.0.0.9"
+    "version": "1.0.0.11"
   },
   "paths": {
     "zippedPackage": "solution/celesc-web-parts.sppkg"
