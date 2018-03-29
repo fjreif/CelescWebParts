@@ -1,0 +1,37 @@
+<div class="inner">
+      <div id="mini-clndr"></div>
+    </div>
+    <script type="text/template" id="template-calendar">		
+            <div class="controls">
+              <div class="clndr-previous-button">‹</div>
+			        <div class="month"><%= month %><%= year %></div>
+			        <div class="clndr-next-button">›</div>
+            </div>
+            <div class="days-container">
+              <div class="days">
+                <div class="headers">
+                  <% _.each(daysOfTheWeek, function(day) { %>
+                    <div class="day-header"><%= day %></div>
+                  <% }); %>
+                </div>                
+                <% _.each(days, function(day) { %>
+                    <div class="<%= day.classes %>"><%= day.day %></div>
+                <% }); %>                
+              </div>
+              <div class="events">
+                <div class="headers">
+                  <div class="x-button">x</div>
+                  <div class="event-header">EVENTOS</div>
+                </div>
+                <div class="events-list">
+                  <% _.each(eventsThisMonth, function(event) { %>
+                    <%	console.log(event); %>
+                    <div class="event">
+                    <div class="event-item-name"><%= event.title %></div>
+                    <div class="event-item-location"><%= event.startDate.format('LLL') || event.date %></div>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+            </div>        
+    </script>

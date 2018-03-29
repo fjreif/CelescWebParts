@@ -1,4 +1,4 @@
 {
   "$schema": "https://dev.office.com/json-schemas/spfx-build/write-manifests.schema.json",  
-  "cdnBasePath": "https://msitcdnframework.blob.core.windows.net/msitframework/calendar"
+  "cdnBasePath": "http://celshpnth/devMicroservice/siteassets/framework"
 }

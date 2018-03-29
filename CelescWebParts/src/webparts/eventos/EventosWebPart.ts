@@ -14,7 +14,7 @@ import {
   PropertyPaneButtonType
 } from '@microsoft/sp-webpart-base';
 
-import * as strings from 'EventosWebPartStrings';
+import * as stringsEvents from 'EventosWebPartStrings';
 import Eventos from './components/Eventos';
 import { IEventosProps } from './components/IEventosProps';
 
@@ -53,19 +53,31 @@ export interface ISPList {
 
 export default class EventosWebPart extends BaseClientSideWebPart<IEventosWebPartProps> {
 
+  private FOLDER_LIBRARY: string = "/js/calendarTemplate";
+
   public render(): void {
     moment.locale('pt-br'); moment.locale();
+
+    console.log('Version: ' + this.dataVersion.toString());
+
     if (this.properties.listTitle == null || this.properties.start == null || 
         this.properties.end == null || this.properties.title == null || 
         this.properties.detail == null || this.properties.type == null) {
       ReactDom.render(new Eventos().renderEmpty(), this.domElement);
     } else {
-      this._renderListAsync();
+
+      SPComponentLoader.loadCss(this.properties.libraryUrl.concat(this.FOLDER_LIBRARY, '/clndr.css'));
+      let underscoreLib = this.properties.libraryUrl.concat(this.FOLDER_LIBRARY, '/underscore/underscore-min.js');
+      console.log('Loading JS Script: ' + underscoreLib);
+      
+      SPComponentLoader.loadScript(underscoreLib).then(() => {
+        this._renderListAsync();        
+      });
     }
   }
 
   protected get dataVersion(): Version {
-    return Version.parse('1.0');
+    return Version.parse('1.0.0.1');
   }
 
 
@@ -193,8 +205,10 @@ export default class EventosWebPart extends BaseClientSideWebPart<IEventosWebPar
 
   private loadLibrary(url: string): void {
     if (url) {
-      let rootUrl = url.concat("/js/calendarTemplate");
+      let rootUrl = url.concat(this.FOLDER_LIBRARY);
+      console.log('Loading CSS: ' + rootUrl.concat('/clndr.css'));
       SPComponentLoader.loadCss(rootUrl.concat('/clndr.css'));
+      console.log('Loading JS Script: ' + rootUrl.concat('/underscore/underscore-min.js'));
       SPComponentLoader.loadScript(rootUrl.concat('/underscore/underscore-min.js'));
     }
   }
@@ -209,11 +223,11 @@ export default class EventosWebPart extends BaseClientSideWebPart<IEventosWebPar
       pages: [
         {
           header: {
-            description: strings.PropertyPaneDescription
+            description: stringsEvents.PropertyPaneDescription
           },
           groups: [
             {
-              groupName: strings.BasicGroupName,
+              groupName: stringsEvents.BasicGroupName,
               groupFields: [
                 PropertyPaneTextField('libraryUrl', {
                   label: 'Local obter bibliotecas JS'

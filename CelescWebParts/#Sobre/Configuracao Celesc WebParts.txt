@@ -93,5 +93,5 @@ Testar
 > gulp serve
 
 Deploy
-> gulp bundle --ship
+> gulp --ship
 > gulp package-solution --ship

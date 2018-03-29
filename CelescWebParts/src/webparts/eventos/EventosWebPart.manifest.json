@@ -14,8 +14,8 @@
   "requiresCustomScript": false,
 
   "preconfiguredEntries": [{
-    "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Other
-    "group": { "default": "Other" },
+    "groupId": "5c03119e-3074-46fd-976b-c60198311f70",
+    "group": { "default": "Celesc Web Parts" },
     "title": { "default": "Eventos" },
     "description": { "default": "Lista de eventos" },
     "officeFabricIconFontName": "Page",
