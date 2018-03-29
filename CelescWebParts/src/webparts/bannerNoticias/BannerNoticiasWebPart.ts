@@ -273,7 +273,7 @@ export default class ReactSlideSwiperWebPart extends BaseClientSideWebPart<IBann
     };
   }
   protected refreshPage(): void {
-    window.location.reload();
+    this.render();
 }
 
   private _siteOptions: IPropertyPaneDropdownOption[] = [];
